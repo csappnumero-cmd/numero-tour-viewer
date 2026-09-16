@@ -1,0 +1,1476 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="numero-self-refresh-cache-guard">
+(function(){
+  'use strict';
+
+  var BUILD_KEY = 'numero_support_build_version';
+  var VERSION_FILE = 'build-version.txt';
+
+  function forceFreshHtml(serverBuild){
+    try {
+      var current = new URL(window.location.href);
+      if (current.searchParams.get('__build') === serverBuild) return;
+      current.searchParams.set('__build', serverBuild);
+      current.searchParams.set('__fresh', String(Date.now()));
+      window.location.replace(current.toString());
+    } catch(e) {
+      var sep = window.location.href.indexOf('?') === -1 ? '?' : '&';
+      window.location.replace(window.location.href + sep + '__build=' +
+        encodeURIComponent(serverBuild) + '&__fresh=' + Date.now());
+    }
+  }
+
+  function checkBuild(){
+    fetch(VERSION_FILE + '?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: {'Cache-Control':'no-cache'}
+    })
+    .then(function(r){
+      if(!r.ok) throw new Error('version fetch failed');
+      return r.text();
+    })
+    .then(function(v){
+      var serverBuild = String(v || '').trim();
+      if(!serverBuild) return;
+
+      var stored = '';
+      try { stored = localStorage.getItem(BUILD_KEY) || ''; } catch(e) {}
+
+      if(stored !== serverBuild){
+        try { localStorage.setItem(BUILD_KEY, serverBuild); } catch(e) {}
+        forceFreshHtml(serverBuild);
+      }
+    })
+    .catch(function(){});
+  }
+
+  checkBuild();
+})();
+</script>
+
+<script id="numero-fresh-start-v3">
+(function(){
+  try {
+    localStorage.setItem('support_center_ar','1');
+    localStorage.setItem('support_center_voice','1');
+  } catch(e) {}
+})();
+</script>
+  <base target="_top">
+  <link rel="stylesheet" href="tour-runtime.css?v=20260916-exactfix-1789553853">
+  <script src="tour-data.js?v=20260916-exactfix-1789553853"></script>
+  <script src="tour-runtime.js?v=20260916-head-gap-v10"></script>
+  <script src="viewer-lock.js?v=20260917-viewer-v1"></script>
+  
+  <!-- FIXED_TOUR_AUDIO -->
+  <script src="tour-audio-map.js?v=20260916-exactfix-1789553853"></script>
+  <script src="tour-audio.js?v=20260916-head-gap-v10"></script>
+<meta name="referrer" content="no-referrer">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="preload" as="image" href="assets/images/Q5DSMWO.png">
+  <title>Support Team</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      font-family: Arial, Helvetica, sans-serif;
+      background: #111;
+    }
+
+    .scene {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 62% 30%,
+          rgba(255, 240, 215, 0.15),
+          transparent 34%
+        ),
+        linear-gradient(
+          135deg,
+          #aaa59d 0%,
+          #918c85 45%,
+          #716d68 100%
+        );
+    }
+
+    .wall-texture {
+      position: absolute;
+      inset: 0;
+      opacity: 0.28;
+
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.03) 0px,
+          rgba(255,255,255,0.03) 1px,
+          transparent 1px,
+          transparent 5px
+        );
+
+      pointer-events: none;
+    }
+
+    .ambient-light {
+      position: absolute;
+      right: 3%;
+      top: 4%;
+      width: 55vw;
+      height: 60vh;
+
+      background:
+        radial-gradient(
+          ellipse at center,
+          rgba(255, 238, 205, 0.17),
+          transparent 68%
+        );
+
+      pointer-events: none;
+    }
+
+    .floor {
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: 19%;
+
+      background:
+        linear-gradient(
+          to bottom,
+          #5a524a,
+          #403a35
+        );
+
+      box-shadow:
+        inset 0 18px 35px rgba(0,0,0,0.20);
+    }
+
+    .floor::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 2px;
+      background: rgba(255,255,255,0.08);
+    }
+
+    /* =========================
+       DOOR AREA
+    ========================== */
+
+    .door-container {
+      position: absolute;
+      left: 10%;
+      bottom: 8%;
+
+      width: min(36vw, 540px);
+      height: 80vh;
+
+      min-width: 420px;
+      min-height: 570px;
+
+      perspective: 1800px;
+
+      animation: fadeIn 0.8s ease both;
+    }
+
+    .door-frame {
+      position: relative;
+      width: 100%;
+      height: 100%;
+
+      padding: 15px;
+      border-radius: 5px;
+
+      background:
+        linear-gradient(
+          90deg,
+          #1d130f 0%,
+          #3d281d 45%,
+          #251711 100%
+        );
+
+      box-shadow:
+        0 34px 65px rgba(0,0,0,0.43),
+        0 9px 18px rgba(0,0,0,0.24);
+
+      overflow: hidden;
+    }
+
+    .door-frame::before {
+      content: "";
+      position: absolute;
+      inset: 4px;
+
+      border: 1px solid rgba(198,148,88,0.12);
+
+      pointer-events: none;
+      z-index: 10;
+    }
+
+    /* =========================
+       OFFICE BEHIND DOOR
+    ========================== */
+
+    .office-view {
+      position: absolute;
+      inset: 15px;
+
+      z-index: 1;
+
+      background-image:
+        linear-gradient(
+          rgba(0,0,0,0.08),
+          rgba(0,0,0,0.10)
+        ),
+        url('assets/images/XBOBxjJ.png');
+
+      background-size: cover;
+      background-position: center center;
+
+      transform: scale(1.08);
+      opacity: 0;
+
+      transition:
+        opacity 1.4s ease,
+        transform 3.2s ease;
+    }
+
+    .door-frame.open .office-view {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .office-view::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+
+      background:
+        radial-gradient(
+          circle at center,
+          transparent 40%,
+          rgba(0,0,0,0.24) 100%
+        );
+    }
+
+    /* =========================
+       DOOR
+    ========================== */
+
+    .door {
+      position: relative;
+      z-index: 5;
+
+      width: 100%;
+      height: 100%;
+
+      overflow: hidden;
+
+      transform-origin: left center;
+      transform-style: preserve-3d;
+
+      border:
+        1px solid rgba(217,164,95,0.28);
+
+      background:
+        linear-gradient(
+          112deg,
+          rgba(255,255,255,0.055) 0%,
+          rgba(255,255,255,0.008) 20%,
+          transparent 34%
+        ),
+        radial-gradient(
+          ellipse at 50% 20%,
+          rgba(128,72,43,0.78),
+          transparent 58%
+        ),
+        linear-gradient(
+          90deg,
+          #3a1f16 0%,
+          #5a3122 48%,
+          #321811 100%
+        );
+
+      box-shadow:
+        inset 0 0 65px rgba(0,0,0,0.52),
+        inset 10px 0 20px rgba(255,255,255,0.015),
+        inset -12px 0 24px rgba(0,0,0,0.16);
+
+      transition:
+        transform 2.4s cubic-bezier(.65,.05,.2,1),
+        box-shadow 2.4s ease;
+    }
+
+    .door-frame.open .door {
+      transform: rotateY(-78deg);
+
+      box-shadow:
+        18px 20px 55px rgba(0,0,0,0.45),
+        inset 0 0 65px rgba(0,0,0,0.52);
+    }
+
+    .door::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+
+      opacity: 0.11;
+
+      background-image:
+        repeating-linear-gradient(
+          90deg,
+          rgba(255,255,255,0.04) 0px,
+          transparent 2px,
+          transparent 8px
+        );
+    }
+
+    .door::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0;
+
+      width: 32%;
+      height: 100%;
+
+      background:
+        linear-gradient(
+          90deg,
+          rgba(255,255,255,0.035),
+          transparent
+        );
+
+      pointer-events: none;
+    }
+
+    .door-panel {
+      position: absolute;
+      inset: 5.5%;
+
+      border:
+        1px solid rgba(205,155,95,0.23);
+
+      box-shadow:
+        inset 0 0 0 5px rgba(20,8,4,0.055);
+
+      pointer-events: none;
+    }
+
+    /* =========================
+       LOGO
+    ========================== */
+
+    .logo {
+      position: absolute;
+      top: 18.5%;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      width: 148px;
+      height: 148px;
+
+      object-fit: contain;
+      border-radius: 24px;
+
+      filter:
+        drop-shadow(0 11px 17px rgba(0,0,0,0.40))
+        drop-shadow(0 0 1px rgba(255,255,255,0.18));
+    }
+
+    .brand-slogan {
+      position: absolute;
+      top: 45%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 88%;
+      text-align: center;
+      white-space: nowrap;
+      font-size: clamp(12px, 1.05vw, 16px);
+      line-height: 1.25;
+      font-weight: 700;
+      letter-spacing: 0.25px;
+      color: #f4e8ff;
+      text-shadow:
+        0 2px 5px rgba(0,0,0,0.72),
+        0 0 10px rgba(104,93,255,0.28);
+      z-index: 7;
+    }
+
+    /* =========================
+       TITLE
+    ========================== */
+
+    .door-title {
+      position: absolute;
+      top: 53.5%;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      width: 86%;
+      padding: 0 16px;
+
+      text-align: center;
+      white-space: normal;
+      line-height: 1.12;
+
+      color: #fff8f0;
+
+      font-size:
+        clamp(
+          24px,
+          2.15vw,
+          34px
+        );
+
+      font-weight: 700;
+      letter-spacing: 3px;
+
+      text-shadow:
+        0 4px 8px rgba(0,0,0,0.62),
+        0 0 18px rgba(205,151,90,0.14);
+    }
+
+    /* =========================
+       HANDLE
+    ========================== */
+
+    .handle {
+      position: absolute;
+      right: 5.5%;
+      top: 50%;
+
+      width: 14px;
+      height: 92px;
+
+      border-radius: 8px;
+
+      background:
+        linear-gradient(
+          90deg,
+          #6e4d2f,
+          #d0a567 45%,
+          #8a653f
+        );
+
+      box-shadow:
+        2px 5px 12px rgba(0,0,0,0.42),
+        inset 1px 0 2px rgba(255,255,255,0.25);
+    }
+
+    .handle::before,
+    .handle::after {
+      content: "";
+
+      position: absolute;
+      left: 50%;
+
+      transform: translateX(-50%);
+
+      width: 19px;
+      height: 6px;
+
+      border-radius: 4px;
+
+      background:
+        linear-gradient(
+          90deg,
+          #60422a,
+          #c99a61,
+          #60422a
+        );
+    }
+
+    .handle::before {
+      top: -2px;
+    }
+
+    .handle::after {
+      bottom: -2px;
+    }
+
+    /* =========================
+       GLASS PANEL
+    ========================== */
+
+    .glass-wrap {
+      position: absolute;
+      right: 10%;
+      top: 28%;
+
+      width: min(30vw, 460px);
+      min-width: 380px;
+
+      animation: fadeIn 1s ease 0.15s both;
+
+      transition:
+        opacity 1s ease,
+        transform 1s ease;
+    }
+
+    .scene.opening .glass-wrap {
+      opacity: 0.58;
+      transform: translateX(18px);
+    }
+
+    .glass-panel {
+      position: relative;
+
+      width: 100%;
+      min-height: 300px;
+
+      padding: 34px 38px 38px;
+
+      color: white;
+
+      border-radius: 20px;
+
+      background:
+        linear-gradient(
+          135deg,
+          rgba(255,255,255,0.18),
+          rgba(255,255,255,0.08)
+        );
+
+      border:
+        1px solid rgba(255,255,255,0.35);
+
+      box-shadow:
+        0 24px 60px rgba(0,0,0,0.24),
+        inset 0 1px 0 rgba(255,255,255,0.28);
+
+      backdrop-filter: blur(15px);
+      -webkit-backdrop-filter: blur(15px);
+
+      overflow: hidden;
+    }
+
+    .glass-panel::before {
+      content: "";
+
+      position: absolute;
+
+      width: 70%;
+      height: 170%;
+
+      right: -35%;
+      top: -40%;
+
+      transform: rotate(24deg);
+
+      background:
+        linear-gradient(
+          to right,
+          transparent,
+          rgba(255,255,255,0.10),
+          transparent
+        );
+
+      pointer-events: none;
+    }
+
+    .screw {
+      position: absolute;
+
+      width: 11px;
+      height: 11px;
+
+      border-radius: 50%;
+
+      background:
+        radial-gradient(
+          circle at 35% 35%,
+          #ecc684,
+          #80572d 65%,
+          #3a2614
+        );
+
+      box-shadow:
+        0 2px 4px rgba(0,0,0,0.35);
+    }
+
+    .s1 { top: 15px; left: 15px; }
+    .s2 { top: 15px; right: 15px; }
+    .s3 { bottom: 15px; left: 15px; }
+    .s4 { bottom: 15px; right: 15px; }
+
+    .panel-label {
+      position: relative;
+
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 3px;
+
+      color: rgba(255,255,255,0.70);
+
+      margin-bottom: 13px;
+    }
+
+    .panel-title {
+      position: relative;
+
+      margin-bottom: 16px;
+
+      font-size:
+        clamp(
+          25px,
+          2vw,
+          32px
+        );
+
+      font-weight: 650;
+      letter-spacing: -0.5px;
+    }
+
+    .gold-line {
+      position: relative;
+
+      width: 70px;
+      height: 2px;
+
+      margin-bottom: 22px;
+
+      background:
+        linear-gradient(
+          to right,
+          #e0b778,
+          #986736
+        );
+
+      box-shadow:
+        0 0 8px rgba(201,154,97,0.2);
+    }
+
+    .panel-summary {
+      position: relative;
+
+      max-width: 95%;
+
+      color: rgba(255,255,255,0.86);
+
+      font-size: 16px;
+      line-height: 1.75;
+
+      white-space: pre-line;
+    }
+
+    /* =========================
+       OPENING GLOW
+    ========================== */
+
+    .opening-glow {
+      position: absolute;
+
+      left: 4%;
+      bottom: 0;
+
+      width: 55%;
+      height: 82%;
+
+      opacity: 0;
+
+      background:
+        radial-gradient(
+          ellipse at 42% 45%,
+          rgba(255,235,190,0.24),
+          transparent 68%
+        );
+
+      pointer-events: none;
+
+      transition:
+        opacity 1.8s ease;
+
+      z-index: 2;
+    }
+
+    .scene.opening .opening-glow {
+      opacity: 1;
+    }
+
+    /* =========================
+       TRANSITION TO STAGE 2
+    ========================== */
+
+    .transition-cover {
+      position: fixed;
+      inset: 0;
+
+      z-index: 9999;
+
+      pointer-events: none;
+
+      opacity: 0;
+
+      background:
+        radial-gradient(
+          circle at 35% 50%,
+          rgba(255,242,210,0.88),
+          rgba(26,22,18,0.98) 70%
+        );
+
+      transition:
+        opacity 0.8s ease;
+    }
+
+    .transition-cover.active {
+      opacity: 1;
+    }
+
+    /* =========================
+       ANIMATION
+    ========================== */
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 1000px) {
+
+      .door-container {
+        left: 5%;
+        width: 42vw;
+        min-width: 340px;
+      }
+
+      .glass-wrap {
+        right: 4%;
+        width: 43vw;
+        min-width: 330px;
+      }
+    }
+
+    @media (max-width: 760px) {
+
+      body {
+        overflow-y: auto;
+      }
+
+      .scene {
+        min-height: 1100px;
+      }
+
+      .door-container {
+        left: 50%;
+        top: 40px;
+        bottom: auto;
+
+        transform: translateX(-50%);
+
+        width: 84vw;
+        height: 650px;
+        min-width: 0;
+      }
+
+      .glass-wrap {
+        left: 50%;
+        right: auto;
+        top: 730px;
+
+        transform: translateX(-50%);
+
+        width: 84vw;
+        min-width: 0;
+      }
+
+      .floor {
+        height: 15%;
+      }
+    }
+    /* =========================
+       PRESENTATION PLAY / PAUSE
+    ========================== */
+
+    .presentation-control {
+      position: fixed;
+      right: 24px;
+      bottom: 22px;
+      z-index: 20000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      color: #fff;
+      background: rgba(15, 12, 10, 0.72);
+      border: 1px solid rgba(255,255,255,0.20);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.08);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      cursor: pointer;
+      user-select: none;
+      transition: background 0.25s ease, transform 0.25s ease, border-color 0.25s ease;
+    }
+
+    .presentation-control:hover {
+      transform: translateY(-2px);
+      background: rgba(23, 18, 14, 0.88);
+      border-color: rgba(224,183,120,0.45);
+    }
+
+    .presentation-control-icon {
+      width: 20px;
+      text-align: center;
+      font-size: 15px;
+    }
+
+    .presentation-control-text {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+    }
+
+    body.presentation-paused * {
+      animation-play-state: paused !important;
+    }
+
+    @media (max-width: 760px) {
+      .presentation-control {
+        right: 14px;
+        bottom: 14px;
+      }
+      .presentation-control-text {
+        display: none;
+      }
+    }
+
+  </style>
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+<script id="numero-fresh-start-defaults">
+(function(){
+  try{
+    // Every new visit through index.html begins clean: Arabic ON, sound ON.
+    localStorage.setItem('support_center_ar','1');
+    localStorage.setItem('support_center_voice','1');
+  }catch(e){}
+})();
+</script>
+
+<style id="final-pause-toggle-4-pages-style">
+#presentationControlText{display:none!important}
+#presentationControl{
+  min-width:46px!important;
+  width:46px!important;
+  height:40px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+}
+#presentationControlIcon{
+  margin:0!important;
+  font-size:18px!important;
+  line-height:1!important;
+}
+</style>
+
+
+<style id="numero-play-pause-stable-safe-v1">
+/* Visual-only fix. Do not rewrite button text/HTML or presentation state. */
+#presentationControl,#pauseBtn,#pauseToggle,#tourPauseToggle{
+  box-sizing:border-box!important;
+  transform:none!important;
+  -webkit-transform:none!important;
+  scale:1!important;
+  transform-origin:center center!important;
+  animation:none!important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#presentationControl:hover,#presentationControl:active,#presentationControl:focus,#presentationControl:focus-visible,
+#pauseBtn:hover,#pauseBtn:active,#pauseBtn:focus,#pauseBtn:focus-visible,
+#pauseToggle:hover,#pauseToggle:active,#pauseToggle:focus,#pauseToggle:focus-visible,
+#tourPauseToggle:hover,#tourPauseToggle:active,#tourPauseToggle:focus,#tourPauseToggle:focus-visible{
+  transform:none!important;
+  -webkit-transform:none!important;
+  scale:1!important;
+  animation:none!important;
+}
+#presentationControl{
+  min-width:46px!important;width:46px!important;max-width:46px!important;
+  min-height:40px!important;height:40px!important;max-height:40px!important;
+  padding:0!important;gap:0!important;
+}
+#pauseBtn,#pauseToggle,#tourPauseToggle{
+  min-width:46px!important;width:46px!important;max-width:46px!important;
+  min-height:40px!important;height:40px!important;max-height:40px!important;
+  padding:0!important;overflow:hidden!important;
+}
+@media (hover:none),(pointer:coarse){
+  #presentationControl:hover,#pauseBtn:hover,#pauseToggle:hover,#tourPauseToggle:hover{
+    transform:none!important;-webkit-transform:none!important;scale:1!important;
+  }
+}
+</style>
+</head>
+
+<body>
+
+  <main id="scene" class="scene">
+
+    <div class="wall-texture"></div>
+    <div class="ambient-light"></div>
+    <div class="floor"></div>
+    <div class="opening-glow"></div>
+
+    <section class="door-container">
+
+      <div id="doorFrame" class="door-frame">
+
+        <div class="office-view"></div>
+
+        <div class="door">
+
+          <div class="door-panel"></div>
+
+          <img referrerpolicy="no-referrer"
+            id="companyLogo"
+            class="logo"
+            src="assets/images/Q5DSMWO.png"
+            alt="Company Logo"
+            loading="eager"
+            fetchpriority="high"
+            decoding="sync"
+          >
+
+          <div class="brand-slogan">Numero eSIM - Be Local Anywhere</div>
+
+          <div
+            id="doorTitle"
+            class="door-title"
+          >
+            CUSTOMER SUPPORT<br>CENTER
+          </div>
+
+          <div class="handle"></div>
+
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="glass-wrap">
+
+      <div class="glass-panel">
+
+        <span class="screw s1"></span>
+        <span class="screw s2"></span>
+        <span class="screw s3"></span>
+        <span class="screw s4"></span>
+
+        <div class="panel-label">
+          TEAM OVERVIEW
+        </div>
+
+        <div class="panel-title">
+          Support Operations
+        </div>
+
+        <div class="gold-line"></div>
+
+        <div
+          id="teamSummary"
+          class="panel-summary"
+        >
+          A coordinated customer support operation built around fast response, clear ownership, consistent service quality, effective escalation, and continuous improvement.
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       PRESENTATION CONTROL
+  ========================== -->
+
+  <button
+    id="presentationControl"
+    class="presentation-control"
+    type="button"
+    aria-label="Pause presentation"
+  >
+    <span id="presentationControlIcon" class="presentation-control-icon">⏸</span>
+    <span id="presentationControlText" class="presentation-control-text">PAUSE</span>
+  </button>
+
+  <div
+    id="transitionCover"
+    class="transition-cover"
+  ></div>
+
+  <script>
+
+    (function() {
+
+      'use strict';
+
+
+    /* =========================
+       PRESENTATION TIMER ENGINE
+    ========================== */
+
+    // HARD START GATE:
+    // The entrance timeline is always frozen. Only the START TOUR event can
+    // release it; no Play button, timer or audio fallback may start it early.
+    let tourStartUnlocked = false;
+    let presentationPaused = true;
+    const presentationTimers = new Set();
+
+    function presentationTimer(callback, delay) {
+      const timer = {
+        callback: callback,
+        remaining: delay,
+        startedAt: Date.now(),
+        timeoutId: null
+      };
+
+      timer.run = function() {
+        timer.startedAt = Date.now();
+        timer.timeoutId = window.setTimeout(function() {
+          presentationTimers.delete(timer);
+          timer.callback();
+        }, timer.remaining);
+      };
+
+      presentationTimers.add(timer);
+
+      if (!presentationPaused) {
+        timer.run();
+      }
+
+      return timer;
+    }
+
+    function pausePresentation() {
+      if (presentationPaused) return;
+      presentationPaused = true;
+      document.body.classList.add('presentation-paused');
+
+      presentationTimers.forEach(function(timer) {
+        if (timer.timeoutId !== null) {
+          window.clearTimeout(timer.timeoutId);
+          const elapsed = Date.now() - timer.startedAt;
+          timer.remaining = Math.max(0, timer.remaining - elapsed);
+          timer.timeoutId = null;
+        }
+      });
+
+      document.getElementById('presentationControlIcon').textContent = '▶';
+      document.getElementById('presentationControlText').textContent = 'PLAY';
+      document.getElementById('presentationControl').setAttribute('aria-label','Resume presentation');
+    }
+
+    function resumePresentation() {
+      if (!presentationPaused) return;
+      presentationPaused = false;
+      document.body.classList.remove('presentation-paused');
+
+      presentationTimers.forEach(function(timer) {
+        if (timer.timeoutId === null) {
+          timer.run();
+        }
+      });
+
+      document.getElementById('presentationControlIcon').textContent = '⏸';
+      document.getElementById('presentationControlText').textContent = 'PAUSE';
+      document.getElementById('presentationControl').setAttribute('aria-label','Pause presentation');
+    }
+
+    if (presentationPaused) {
+      document.body.classList.add('presentation-paused');
+      document.getElementById('presentationControlIcon').textContent = '▶';
+      document.getElementById('presentationControlText').textContent = 'PLAY';
+      document.getElementById('presentationControl').setAttribute('aria-label','Waiting for Start Tour');
+    }
+
+    // The START TOUR click is the ONLY way to release the entrance timeline.
+    window.addEventListener('numero-tour-started', function() {
+      tourStartUnlocked = true;
+      resumePresentation();
+    }, { once: true });
+
+    document.getElementById('presentationControl').addEventListener('click', function() {
+      if (!tourStartUnlocked) return;
+      if (presentationPaused) {
+        resumePresentation();
+      } else {
+        pausePresentation();
+      }
+    });
+
+
+    function loadStageTwo() {
+
+      const cover =
+        document.getElementById(
+          'transitionCover'
+        );
+
+      cover.classList.add('active');
+
+      presentationTimer(function() {
+
+        google.script.run
+
+          .withSuccessHandler(function(html) {
+
+            document.open();
+            document.write(html);
+            document.close();
+
+          })
+
+          .withFailureHandler(function(error) {
+
+            console.error(
+              'Stage 2 load failed:',
+              error
+            );
+
+          })
+
+          .getPage('index1');
+
+      }, 750);
+    }
+
+
+    /* Door and overview content are intentionally fixed in this file.
+       Google Sheets / getContent() must not overwrite them. */
+
+    /* =========================
+       TIMELINE
+
+       0 - 5 sec
+       قراءة اللوحة
+
+       5 sec
+       فتح الباب
+
+       7.8 sec تقريباً
+       انتقال للمرحلة الثانية
+    ========================== */
+
+    presentationTimer(function() {
+
+      document
+        .getElementById('doorFrame')
+        .classList
+        .add('open');
+
+      document
+        .getElementById('scene')
+        .classList
+        .add('opening');
+
+      presentationTimer(function() {
+        loadStageTwo();
+      }, 2800);
+
+    }, 5000);
+
+
+    })();
+
+  </script>
+
+<script id="numero-final-compact-controls">
+(function(){
+  'use strict';
+  var AR_KEY='support_center_ar', VOICE_KEY='support_center_voice';
+
+  function get(ids){
+    for(var i=0;i<ids.length;i++){
+      var el=document.getElementById(ids[i]);
+      if(el) return el;
+    }
+    return null;
+  }
+  function compact(el){
+    if(!el) return;
+    el.style.setProperty('min-width','46px','important');
+    el.style.setProperty('width','46px','important');
+    el.style.setProperty('height','38px','important');
+    el.style.setProperty('padding','0','important');
+    el.style.setProperty('font-size','18px','important');
+    el.style.setProperty('letter-spacing','0','important');
+    el.style.setProperty('display','inline-flex','important');
+    el.style.setProperty('align-items','center','important');
+    el.style.setProperty('justify-content','center','important');
+  }
+  function pref(key, fallback){
+    try{ var v=localStorage.getItem(key); return v===null?fallback:v==='1'; }
+    catch(e){ return fallback; }
+  }
+  function infer(text, key, fallback){
+    text=String(text||'').toUpperCase();
+    if(/\bOFF\b/.test(text)) return false;
+    if(/\bON\b/.test(text)) return true;
+    return pref(key,fallback);
+  }
+  var trIcon='<span aria-hidden="true" style="position:relative;width:25px;height:22px;display:inline-block;pointer-events:none">'+
+    '<span style="position:absolute;right:0;top:1px;width:16px;height:17px;border-radius:3px;background:#eef1f4;border:1px solid #bcc5ce;display:flex;align-items:center;justify-content:center;color:#4d5964;font:700 10px Arial;line-height:1">文</span>'+
+    '<span style="position:absolute;left:0;bottom:0;width:17px;height:17px;border-radius:3px;background:#4285f4;display:flex;align-items:center;justify-content:center;color:#fff;font:700 10px Arial;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.18)">G</span>'+
+    '</span>';
+
+  function sync(){
+    var ar=get(['arBtn','arabicToggle','tourArabicToggle']);
+    var voice=get(['voiceBtn','voiceToggle','tourVoiceToggle']);
+    var pause=get(['pauseBtn','pauseToggle','tourPauseToggle']);
+
+    if(ar){
+      var raw=ar.getAttribute('data-numero-last-native') || ar.textContent;
+      if(/\b(?:AR\s+)?(?:ON|OFF)\b/i.test(ar.textContent||'')){
+        raw=ar.textContent; ar.setAttribute('data-numero-last-native',raw);
+      }
+      var on=infer(raw,AR_KEY,true);
+      compact(ar);
+      if(ar.innerHTML!==trIcon) ar.innerHTML=trIcon;
+      ar.title=on?'Arabic translation: ON':'Arabic translation: OFF';
+      ar.setAttribute('aria-label',ar.title);
+      ar.style.setProperty('background',on?'#ffffff':'rgba(9,17,23,.78)','important');
+      ar.style.setProperty('border-color',on?'#ffffff':'rgba(255,255,255,.18)','important');
+      ar.style.setProperty('opacity',on?'1':'.65','important');
+    }
+
+    if(voice){
+      var vraw=voice.getAttribute('data-numero-last-native') || voice.textContent;
+      if(/\bVOICE\s+(?:ON|OFF)\b/i.test(voice.textContent||'')){
+        vraw=voice.textContent; voice.setAttribute('data-numero-last-native',vraw);
+      }
+      var von=infer(vraw,VOICE_KEY,true);
+      compact(voice);
+      var ico=von?'🔊':'🔇';
+      if(voice.textContent!==ico) voice.textContent=ico;
+      voice.title=von?'Sound: ON':'Sound: MUTED';
+      voice.setAttribute('aria-label',voice.title);
+      voice.style.setProperty('background',von?'rgba(9,17,23,.78)':'#b42318','important');
+      voice.style.setProperty('border-color',von?'rgba(255,255,255,.18)':'#ff6b5f','important');
+      voice.style.setProperty('color','#fff','important');
+    }
+
+    if(pause){
+      var praw=pause.getAttribute('data-numero-last-native') || pause.textContent;
+      if(/PAUSE|PLAY|REPLAY/i.test(pause.textContent||'')){
+        praw=pause.textContent; pause.setAttribute('data-numero-last-native',praw);
+      }
+      compact(pause);
+      var picon=/PLAY/i.test(praw)?'▶️':(/REPLAY/i.test(praw)?'↻':'⏸️');
+      if(pause.textContent!==picon) pause.textContent=picon;
+      pause.title=picon==='▶️'?'Play':(picon==='↻'?'Replay':'Pause');
+      pause.setAttribute('aria-label',pause.title);
+    }
+  }
+
+  function install(){
+    sync();
+    document.addEventListener('click',function(e){
+      var id=(e.target&&e.target.id)||'';
+      if(/^(arBtn|arabicToggle|tourArabicToggle|voiceBtn|voiceToggle|tourVoiceToggle|pauseBtn|pauseToggle|tourPauseToggle)$/.test(id)){
+        setTimeout(sync,80);
+        setTimeout(sync,250);
+      }
+    },true);
+    setInterval(sync,700);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
+})();
+</script>
+<script id="numero-icon-controls-v3">
+(function(){
+  'use strict';
+  var AR_IDS=['arBtn','arabicToggle','tourArabicToggle'];
+  var VOICE_IDS=['voiceBtn','voiceToggle','tourVoiceToggle'];
+  var PAUSE_IDS=['pauseBtn','pauseToggle','tourPauseToggle'];
+
+  function firstByIds(ids){
+    for(var i=0;i<ids.length;i++){
+      var el=document.getElementById(ids[i]);
+      if(el) return el;
+    }
+    return null;
+  }
+
+  function forceBaseStyle(btn){
+    if(!btn) return;
+    btn.style.setProperty('width','46px','important');
+    btn.style.setProperty('min-width','46px','important');
+    btn.style.setProperty('height','38px','important');
+    btn.style.setProperty('padding','0','important');
+    btn.style.setProperty('display','inline-flex','important');
+    btn.style.setProperty('align-items','center','important');
+    btn.style.setProperty('justify-content','center','important');
+    btn.style.setProperty('font-size','18px','important');
+    btn.style.setProperty('letter-spacing','0','important');
+    btn.style.setProperty('line-height','1','important');
+  }
+
+  var translateIcon =
+    '<span class="numero-translate-icon" aria-hidden="true" style="position:relative;width:25px;height:22px;display:inline-block;pointer-events:none">' +
+      '<span style="position:absolute;right:0;top:1px;width:16px;height:17px;border-radius:3px;background:#eef1f4;border:1px solid #bcc5ce;display:flex;align-items:center;justify-content:center;color:#4d5964;font:700 10px Arial;line-height:1">文</span>' +
+      '<span style="position:absolute;left:0;bottom:0;width:17px;height:17px;border-radius:3px;background:#4285f4;display:flex;align-items:center;justify-content:center;color:#fff;font:700 10px Arial;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.18)">G</span>' +
+    '</span>';
+
+  function decorateArabic(){
+    var b=firstByIds(AR_IDS); if(!b) return;
+    var raw=(b.textContent||'').trim().toUpperCase();
+    if(raw.indexOf('AR ON')>=0) b.dataset.numeroAr='on';
+    else if(raw.indexOf('AR OFF')>=0) b.dataset.numeroAr='off';
+    if(!b.dataset.numeroAr) b.dataset.numeroAr=(b.classList.contains('active')||b.classList.contains('on'))?'on':'off';
+    forceBaseStyle(b);
+    if(!b.querySelector('.numero-translate-icon')) b.innerHTML=translateIcon;
+    var on=b.dataset.numeroAr==='on';
+    b.title=on?'Arabic translation: ON':'Arabic translation: OFF';
+    b.setAttribute('aria-label',b.title);
+    b.style.setProperty('background',on?'#ffffff':'rgba(9,17,23,.76)','important');
+    b.style.setProperty('border-color',on?'#ffffff':'rgba(255,255,255,.18)','important');
+    b.style.setProperty('opacity',on?'1':'.62','important');
+  }
+
+  function decorateVoice(){
+    var b=firstByIds(VOICE_IDS); if(!b) return;
+    var raw=(b.textContent||'').trim().toUpperCase();
+    if(raw.indexOf('VOICE ON')>=0 || raw==='🔊') b.dataset.numeroMuted='0';
+    else if(raw.indexOf('VOICE OFF')>=0 || raw==='🔇') b.dataset.numeroMuted='1';
+    if(!b.dataset.numeroMuted) b.dataset.numeroMuted=(b.classList.contains('active')||b.classList.contains('on'))?'0':'1';
+    forceBaseStyle(b);
+    var muted=b.dataset.numeroMuted==='1';
+    var icon=muted?'🔇':'🔊';
+    if(b.textContent!==icon) b.textContent=icon;
+    b.title=muted?'Audio muted':'Audio on';
+    b.setAttribute('aria-label',b.title);
+    b.style.setProperty('background',muted?'#c62828':'rgba(9,17,23,.82)','important');
+    b.style.setProperty('border-color',muted?'#ff6b6b':'rgba(255,255,255,.18)','important');
+    b.style.setProperty('color','#ffffff','important');
+  }
+
+  function decoratePause(){
+    var b=firstByIds(PAUSE_IDS); if(!b) return;
+    var raw=(b.textContent||'').trim().toUpperCase();
+    if(raw.indexOf('REPLAY')>=0 || raw==='↻') b.dataset.numeroAction='replay';
+    else if(raw.indexOf('PLAY')>=0 || raw==='▶' || raw==='▶️') b.dataset.numeroAction='play';
+    else if(raw.indexOf('PAUSE')>=0 || raw==='⏸' || raw==='⏸️') b.dataset.numeroAction='pause';
+    if(!b.dataset.numeroAction) b.dataset.numeroAction='pause';
+    forceBaseStyle(b);
+    var action=b.dataset.numeroAction;
+    var icon=action==='play'?'▶':(action==='replay'?'↻':'⏸');
+    if(b.textContent!==icon) b.textContent=icon;
+    b.title=action==='play'?'Play':(action==='replay'?'Replay':'Pause');
+    b.setAttribute('aria-label',b.title);
+  }
+
+  var queued=false;
+  function decorateAll(){ queued=false; decorateArabic(); decorateVoice(); decoratePause(); }
+  function queueDecorate(){ if(queued) return; queued=true; Promise.resolve().then(decorateAll); }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',decorateAll,{once:true});
+  else decorateAll();
+
+  var obs=new MutationObserver(function(mutations){
+    for(var i=0;i<mutations.length;i++){
+      var t=mutations[i].target;
+      if(t && t.nodeType===3) t=t.parentElement;
+      if(!t) continue;
+      var btn=(t.tagName==='BUTTON')?t:(t.closest?t.closest('button'):null);
+      var id=btn?btn.id:'';
+      if(AR_IDS.indexOf(id)>=0 || VOICE_IDS.indexOf(id)>=0 || PAUSE_IDS.indexOf(id)>=0){ queueDecorate(); return; }
+    }
+  });
+  if(document.body) obs.observe(document.body,{subtree:true,childList:true,characterData:true});
+})();
+</script>
+
+<script id="final-pause-toggle-4-pages">
+(function(){
+  'use strict';
+
+  function control(){ return document.getElementById('presentationControl'); }
+  function icon(){ return document.getElementById('presentationControlIcon'); }
+  function text(){ return document.getElementById('presentationControlText'); }
+
+  function setIconFromPausedState(){
+    var c=control(), i=icon(), t=text();
+    if(!c) return;
+
+    if(t) t.style.display='none';
+
+    var paused=document.body.classList.contains('presentation-paused');
+    var symbol=paused ? '▶' : '⏸';
+
+    if(i) i.textContent=symbol;
+    else c.textContent=symbol;
+
+    c.setAttribute('aria-label', paused ? 'Play presentation' : 'Pause presentation');
+    c.title=paused ? 'Play' : 'Pause';
+  }
+
+  function install(){
+    var c=control();
+    if(!c || c.getAttribute('data-final-pause-sync')==='1') return;
+
+    c.setAttribute('data-final-pause-sync','1');
+    setIconFromPausedState();
+
+    c.addEventListener('click',function(){
+      setTimeout(setIconFromPausedState,0);
+      setTimeout(setIconFromPausedState,40);
+    },false);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',install,{once:true});
+  }else{
+    install();
+  }
+
+  setTimeout(install,100);
+  setTimeout(install,500);
+})();
+</script>
+
+</body>
+</html>

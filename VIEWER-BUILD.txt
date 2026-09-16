@@ -1,0 +1,4 @@
+Numero Customer Support Tour — Viewer build
+Based on stable V12.
+DEV navigator removed. System/More Details/Open System/Exam interactions disabled.
+Shared audio files, audio maps, dialogue text, images, timing code and tour flow were not modified.

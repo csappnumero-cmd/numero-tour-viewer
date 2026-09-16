@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="numero-self-refresh-cache-guard">
+(function(){
+  'use strict';
+
+  var BUILD_KEY = 'numero_support_build_version';
+  var VERSION_FILE = 'build-version.txt';
+
+  function forceFreshHtml(serverBuild){
+    try {
+      var current = new URL(window.location.href);
+      if (current.searchParams.get('__build') === serverBuild) return;
+      current.searchParams.set('__build', serverBuild);
+      current.searchParams.set('__fresh', String(Date.now()));
+      window.location.replace(current.toString());
+    } catch(e) {
+      var sep = window.location.href.indexOf('?') === -1 ? '?' : '&';
+      window.location.replace(window.location.href + sep + '__build=' +
+        encodeURIComponent(serverBuild) + '&__fresh=' + Date.now());
+    }
+  }
+
+  function checkBuild(){
+    fetch(VERSION_FILE + '?t=' + Date.now(), {
+      cache: 'no-store',
+      headers: {'Cache-Control':'no-cache'}
+    })
+    .then(function(r){
+      if(!r.ok) throw new Error('version fetch failed');
+      return r.text();
+    })
+    .then(function(v){
+      var serverBuild = String(v || '').trim();
+      if(!serverBuild) return;
+
+      var stored = '';
+      try { stored = localStorage.getItem(BUILD_KEY) || ''; } catch(e) {}
+
+      if(stored !== serverBuild){
+        try { localStorage.setItem(BUILD_KEY, serverBuild); } catch(e) {}
+        forceFreshHtml(serverBuild);
+      }
+    })
+    .catch(function(){});
+  }
+
+  checkBuild();
+})();
+</script>
+
+  <base target="_top">
+  <link rel="stylesheet" href="tour-runtime.css?v=20260916-exactfix-1789553853">
+  <script src="tour-data.js?v=20260916-exactfix-1789553853"></script>
+  <script src="tour-runtime.js?v=20260916-head-gap-v10"></script>
+  <script src="viewer-lock.js?v=20260917-viewer-v1"></script>
+  
+  <!-- FIXED_TOUR_AUDIO -->
+  <script src="tour-audio-map.js?v=20260916-exactfix-1789553853"></script>
+  <script src="tour-audio.js?v=20260916-head-gap-v10"></script>
+<meta name="referrer" content="no-referrer">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Support Team - Inside</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      overflow: hidden;
+      background: #111;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    /* =========================
+       OFFICE SCENE
+    ========================== */
+
+    .office-scene {
+      position: relative;
+
+      width: 100%;
+      height: 100vh;
+
+      overflow: hidden;
+
+      background: #111;
+    }
+
+    .office-bg {
+      position: absolute;
+
+      inset: -4%;
+
+      background-image:
+        linear-gradient(
+          rgba(0,0,0,0.08),
+          rgba(0,0,0,0.14)
+        ),
+        url('assets/images/XBOBxjJ.png');
+
+      background-size: cover;
+      background-position: center center;
+
+      transform: scale(1.08);
+
+      animation:
+        enterOffice
+        6s
+        cubic-bezier(.2,.7,.2,1)
+        forwards;
+    }
+
+    .office-bg::after {
+      content: "";
+
+      position: absolute;
+      inset: 0;
+
+      background:
+        radial-gradient(
+          circle at center,
+          transparent 45%,
+          rgba(0,0,0,0.34) 100%
+        );
+    }
+
+    .cinema-shadow {
+      position: absolute;
+      inset: 0;
+
+      background:
+        linear-gradient(
+          to bottom,
+          rgba(0,0,0,0.18),
+          transparent 25%,
+          transparent 70%,
+          rgba(0,0,0,0.28)
+        );
+
+      pointer-events: none;
+    }
+
+    /* =========================
+       INTRO TEXT
+    ========================== */
+
+    .intro-label {
+      position: absolute;
+
+      left: 6%;
+      bottom: 8%;
+
+      color: white;
+
+      opacity: 0;
+
+      animation:
+        labelIn 1.2s ease 1.4s forwards,
+        labelOut 1s ease 4.5s forwards;
+    }
+
+    .intro-small {
+      margin-bottom: 10px;
+
+      color:
+        rgba(255,255,255,0.70);
+
+      font-size: 12px;
+
+      letter-spacing: 4px;
+
+      text-transform: uppercase;
+    }
+
+    .intro-title {
+      font-size:
+        clamp(
+          34px,
+          4vw,
+          64px
+        );
+
+      font-weight: 600;
+
+      letter-spacing: 1px;
+
+      text-shadow:
+        0 8px 25px
+        rgba(0,0,0,0.45);
+    }
+
+    /* =========================
+       TRANSITION
+    ========================== */
+
+    .transition-cover {
+      position: fixed;
+
+      inset: 0;
+
+      z-index: 9999;
+
+      opacity: 0;
+
+      pointer-events: none;
+
+      background:
+        radial-gradient(
+          circle at center,
+          rgba(30,24,18,0.95),
+          rgba(5,5,5,1) 75%
+        );
+
+      transition:
+        opacity 0.8s ease;
+    }
+
+    .transition-cover.active {
+      opacity: 1;
+    }
+
+    /* =========================
+       PLAY / PAUSE CONTROL
+    ========================== */
+
+    .presentation-control {
+      position: fixed;
+
+      right: 24px;
+      bottom: 22px;
+
+      z-index: 20000;
+
+      display: flex;
+      align-items: center;
+
+      gap: 10px;
+
+      padding:
+        10px 14px;
+
+      border-radius: 999px;
+
+      color: white;
+
+      background:
+        rgba(15,12,10,0.74);
+
+      border:
+        1px solid
+        rgba(255,255,255,0.20);
+
+      box-shadow:
+        0 12px 30px
+        rgba(0,0,0,0.32),
+        inset 0 1px 0
+        rgba(255,255,255,0.08);
+
+      backdrop-filter:
+        blur(14px);
+
+      -webkit-backdrop-filter:
+        blur(14px);
+
+      cursor: pointer;
+
+      user-select: none;
+
+      transition:
+        transform .25s ease,
+        background .25s ease,
+        border-color .25s ease;
+    }
+
+    .presentation-control:hover {
+      transform:
+        translateY(-2px);
+
+      background:
+        rgba(23,18,14,0.90);
+
+      border-color:
+        rgba(224,183,120,0.45);
+    }
+
+    .presentation-control-icon {
+      width: 20px;
+
+      text-align: center;
+
+      font-size: 15px;
+    }
+
+    .presentation-control-text {
+      font-size: 11px;
+
+      font-weight: 700;
+
+      letter-spacing: 1.5px;
+    }
+
+    /*
+      لما نعمل Pause
+      كل CSS animations توقف
+    */
+
+    body.presentation-paused * {
+      animation-play-state:
+        paused !important;
+    }
+
+    /* =========================
+       ANIMATIONS
+    ========================== */
+
+    @keyframes enterOffice {
+
+      from {
+        transform:
+          scale(1.08);
+      }
+
+      to {
+        transform:
+          scale(1);
+      }
+
+    }
+
+    @keyframes labelIn {
+
+      from {
+        opacity: 0;
+
+        transform:
+          translateY(15px);
+      }
+
+      to {
+        opacity: 1;
+
+        transform:
+          translateY(0);
+      }
+
+    }
+
+    @keyframes labelOut {
+
+      from {
+        opacity: 1;
+      }
+
+      to {
+        opacity: 0;
+      }
+
+    }
+
+    /* =========================
+       RESPONSIVE
+    ========================== */
+
+    @media (max-width: 760px) {
+
+      .presentation-control {
+        right: 14px;
+        bottom: 14px;
+      }
+
+      .presentation-control-text {
+        display: none;
+      }
+
+    }
+
+  </style>
+
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+
+<style id="final-pause-toggle-4-pages-style">
+#presentationControlText{display:none!important}
+#presentationControl{
+  min-width:46px!important;
+  width:46px!important;
+  height:40px!important;
+  padding:0!important;
+  display:inline-flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  gap:0!important;
+}
+#presentationControlIcon{
+  margin:0!important;
+  font-size:18px!important;
+  line-height:1!important;
+}
+</style>
+
+
+<style id="numero-play-pause-stable-safe-v1">
+/* Visual-only fix. Do not rewrite button text/HTML or presentation state. */
+#presentationControl,#pauseBtn,#pauseToggle,#tourPauseToggle{
+  box-sizing:border-box!important;
+  transform:none!important;
+  -webkit-transform:none!important;
+  scale:1!important;
+  transform-origin:center center!important;
+  animation:none!important;
+  touch-action:manipulation;
+  -webkit-tap-highlight-color:transparent;
+}
+#presentationControl:hover,#presentationControl:active,#presentationControl:focus,#presentationControl:focus-visible,
+#pauseBtn:hover,#pauseBtn:active,#pauseBtn:focus,#pauseBtn:focus-visible,
+#pauseToggle:hover,#pauseToggle:active,#pauseToggle:focus,#pauseToggle:focus-visible,
+#tourPauseToggle:hover,#tourPauseToggle:active,#tourPauseToggle:focus,#tourPauseToggle:focus-visible{
+  transform:none!important;
+  -webkit-transform:none!important;
+  scale:1!important;
+  animation:none!important;
+}
+#presentationControl{
+  min-width:46px!important;width:46px!important;max-width:46px!important;
+  min-height:40px!important;height:40px!important;max-height:40px!important;
+  padding:0!important;gap:0!important;
+}
+#pauseBtn,#pauseToggle,#tourPauseToggle{
+  min-width:46px!important;width:46px!important;max-width:46px!important;
+  min-height:40px!important;height:40px!important;max-height:40px!important;
+  padding:0!important;overflow:hidden!important;
+}
+@media (hover:none),(pointer:coarse){
+  #presentationControl:hover,#pauseBtn:hover,#pauseToggle:hover,#tourPauseToggle:hover{
+    transform:none!important;-webkit-transform:none!important;scale:1!important;
+  }
+}
+</style>
+</head>
+
+
+<body>
+
+  <!-- =========================
+       OFFICE
+  ========================== -->
+
+  <main class="office-scene">
+
+    <div class="office-bg"></div>
+
+    <div class="cinema-shadow"></div>
+
+    <div class="intro-label">
+
+      <div class="intro-small">
+        Inside the team
+      </div>
+
+      <div class="intro-title">
+        Support Operations
+      </div>
+
+    </div>
+
+  </main>
+
+
+  <!-- =========================
+       PLAY / PAUSE
+  ========================== -->
+
+  <button
+    id="presentationControl"
+    class="presentation-control"
+    type="button"
+    aria-label="Pause presentation"
+  >
+
+    <span
+      id="presentationControlIcon"
+      class="presentation-control-icon"
+    >
+      ⏸
+    </span>
+
+    <span
+      id="presentationControlText"
+      class="presentation-control-text"
+    >
+      PAUSE
+    </span>
+
+  </button>
+
+
+  <!-- =========================
+       TRANSITION
+  ========================== -->
+
+  <div
+    id="transitionCover"
+    class="transition-cover"
+  ></div>
+
+
+  <script>
+
+    /* =========================================
+       PLAY / PAUSE TIMER ENGINE
+    ========================================== */
+
+    let presentationPaused = false;
+
+    const presentationTimers =
+      new Set();
+
+
+    function presentationTimer(
+      callback,
+      delay
+    ) {
+
+      const timer = {
+
+        callback: callback,
+
+        remaining: delay,
+
+        startedAt: Date.now(),
+
+        timeoutId: null
+
+      };
+
+
+      function runTimer() {
+
+        timer.startedAt =
+          Date.now();
+
+
+        timer.timeoutId =
+          window.setTimeout(
+            function() {
+
+              presentationTimers
+                .delete(timer);
+
+
+              timer.callback();
+
+            },
+            timer.remaining
+          );
+
+      }
+
+
+      timer.run =
+        runTimer;
+
+
+      presentationTimers
+        .add(timer);
+
+
+      if (!presentationPaused) {
+
+        runTimer();
+
+      }
+
+
+      return timer;
+
+    }
+
+
+    /* =========================================
+       PAUSE
+    ========================================== */
+
+    function pausePresentation() {
+
+      if (presentationPaused) {
+        return;
+      }
+
+
+      presentationPaused = true;
+
+
+      document.body
+        .classList
+        .add(
+          'presentation-paused'
+        );
+
+
+      presentationTimers
+        .forEach(
+          function(timer) {
+
+            if (
+              timer.timeoutId !==
+              null
+            ) {
+
+              window.clearTimeout(
+                timer.timeoutId
+              );
+
+
+              const elapsed =
+                Date.now() -
+                timer.startedAt;
+
+
+              timer.remaining =
+                Math.max(
+                  0,
+                  timer.remaining -
+                  elapsed
+                );
+
+
+              timer.timeoutId =
+                null;
+
+            }
+
+          }
+        );
+
+
+      document
+        .getElementById(
+          'presentationControlIcon'
+        )
+        .textContent =
+          '▶';
+
+
+      document
+        .getElementById(
+          'presentationControlText'
+        )
+        .textContent =
+          'PLAY';
+
+
+      document
+        .getElementById(
+          'presentationControl'
+        )
+        .setAttribute(
+          'aria-label',
+          'Resume presentation'
+        );
+
+    }
+
+
+    /* =========================================
+       PLAY
+    ========================================== */
+
+    function resumePresentation() {
+
+      if (!presentationPaused) {
+        return;
+      }
+
+
+      presentationPaused = false;
+
+
+      document.body
+        .classList
+        .remove(
+          'presentation-paused'
+        );
+
+
+      presentationTimers
+        .forEach(
+          function(timer) {
+
+            if (
+              timer.timeoutId ===
+              null
+            ) {
+
+              timer.run();
+
+            }
+
+          }
+        );
+
+
+      document
+        .getElementById(
+          'presentationControlIcon'
+        )
+        .textContent =
+          '⏸';
+
+
+      document
+        .getElementById(
+          'presentationControlText'
+        )
+        .textContent =
+          'PAUSE';
+
+
+      document
+        .getElementById(
+          'presentationControl'
+        )
+        .setAttribute(
+          'aria-label',
+          'Pause presentation'
+        );
+
+    }
+
+
+    /* =========================================
+       BUTTON CLICK
+    ========================================== */
+
+    document
+      .getElementById(
+        'presentationControl'
+      )
+      .addEventListener(
+        'click',
+        function() {
+
+          if (
+            presentationPaused
+          ) {
+
+            resumePresentation();
+
+          }
+          else {
+
+            pausePresentation();
+
+          }
+
+        }
+      );
+
+
+    /* =========================================
+       LOAD HEAD OF CUSTOMER SUPPORT
+    ========================================== */
+
+    function loadManagerScene() {
+
+      const cover =
+        document.getElementById(
+          'transitionCover'
+        );
+
+
+      cover
+        .classList
+        .add(
+          'active'
+        );
+
+
+      presentationTimer(
+        function() {
+
+          google.script.run
+
+            .withSuccessHandler(
+              function(html) {
+
+                document.open();
+
+                document.write(
+                  html
+                );
+
+                document.close();
+
+              }
+            )
+
+            .withFailureHandler(
+              function(error) {
+
+                console.error(
+                  'Manager scene load failed:',
+                  error
+                );
+
+              }
+            )
+
+            .getPage(
+              'index2'
+            );
+
+        },
+        750
+      );
+
+    }
+
+
+    /* =========================================
+       TIMELINE
+
+       0 - 6 seconds
+       دخول المكتب
+
+       بعدها
+       الانتقال لـ Head of Customer Support
+    ========================================== */
+
+    presentationTimer(
+      function() {
+
+        loadManagerScene();
+
+      },
+      6000
+    );
+
+  </script>
+
+<script id="numero-final-compact-controls">
+(function(){
+  'use strict';
+  var AR_KEY='support_center_ar', VOICE_KEY='support_center_voice';
+
+  function get(ids){
+    for(var i=0;i<ids.length;i++){
+      var el=document.getElementById(ids[i]);
+      if(el) return el;
+    }
+    return null;
+  }
+  function compact(el){
+    if(!el) return;
+    el.style.setProperty('min-width','46px','important');
+    el.style.setProperty('width','46px','important');
+    el.style.setProperty('height','38px','important');
+    el.style.setProperty('padding','0','important');
+    el.style.setProperty('font-size','18px','important');
+    el.style.setProperty('letter-spacing','0','important');
+    el.style.setProperty('display','inline-flex','important');
+    el.style.setProperty('align-items','center','important');
+    el.style.setProperty('justify-content','center','important');
+  }
+  function pref(key, fallback){
+    try{ var v=localStorage.getItem(key); return v===null?fallback:v==='1'; }
+    catch(e){ return fallback; }
+  }
+  function infer(text, key, fallback){
+    text=String(text||'').toUpperCase();
+    if(/\bOFF\b/.test(text)) return false;
+    if(/\bON\b/.test(text)) return true;
+    return pref(key,fallback);
+  }
+  var trIcon='<span aria-hidden="true" style="position:relative;width:25px;height:22px;display:inline-block;pointer-events:none">'+
+    '<span style="position:absolute;right:0;top:1px;width:16px;height:17px;border-radius:3px;background:#eef1f4;border:1px solid #bcc5ce;display:flex;align-items:center;justify-content:center;color:#4d5964;font:700 10px Arial;line-height:1">文</span>'+
+    '<span style="position:absolute;left:0;bottom:0;width:17px;height:17px;border-radius:3px;background:#4285f4;display:flex;align-items:center;justify-content:center;color:#fff;font:700 10px Arial;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.18)">G</span>'+
+    '</span>';
+
+  function sync(){
+    var ar=get(['arBtn','arabicToggle','tourArabicToggle']);
+    var voice=get(['voiceBtn','voiceToggle','tourVoiceToggle']);
+    var pause=get(['pauseBtn','pauseToggle','tourPauseToggle']);
+
+    if(ar){
+      var raw=ar.getAttribute('data-numero-last-native') || ar.textContent;
+      if(/\b(?:AR\s+)?(?:ON|OFF)\b/i.test(ar.textContent||'')){
+        raw=ar.textContent; ar.setAttribute('data-numero-last-native',raw);
+      }
+      var on=infer(raw,AR_KEY,true);
+      compact(ar);
+      if(ar.innerHTML!==trIcon) ar.innerHTML=trIcon;
+      ar.title=on?'Arabic translation: ON':'Arabic translation: OFF';
+      ar.setAttribute('aria-label',ar.title);
+      ar.style.setProperty('background',on?'#ffffff':'rgba(9,17,23,.78)','important');
+      ar.style.setProperty('border-color',on?'#ffffff':'rgba(255,255,255,.18)','important');
+      ar.style.setProperty('opacity',on?'1':'.65','important');
+    }
+
+    if(voice){
+      var vraw=voice.getAttribute('data-numero-last-native') || voice.textContent;
+      if(/\bVOICE\s+(?:ON|OFF)\b/i.test(voice.textContent||'')){
+        vraw=voice.textContent; voice.setAttribute('data-numero-last-native',vraw);
+      }
+      var von=infer(vraw,VOICE_KEY,true);
+      compact(voice);
+      var ico=von?'🔊':'🔇';
+      if(voice.textContent!==ico) voice.textContent=ico;
+      voice.title=von?'Sound: ON':'Sound: MUTED';
+      voice.setAttribute('aria-label',voice.title);
+      voice.style.setProperty('background',von?'rgba(9,17,23,.78)':'#b42318','important');
+      voice.style.setProperty('border-color',von?'rgba(255,255,255,.18)':'#ff6b5f','important');
+      voice.style.setProperty('color','#fff','important');
+    }
+
+    if(pause){
+      var praw=pause.getAttribute('data-numero-last-native') || pause.textContent;
+      if(/PAUSE|PLAY|REPLAY/i.test(pause.textContent||'')){
+        praw=pause.textContent; pause.setAttribute('data-numero-last-native',praw);
+      }
+      compact(pause);
+      var picon=/PLAY/i.test(praw)?'▶️':(/REPLAY/i.test(praw)?'↻':'⏸️');
+      if(pause.textContent!==picon) pause.textContent=picon;
+      pause.title=picon==='▶️'?'Play':(picon==='↻'?'Replay':'Pause');
+      pause.setAttribute('aria-label',pause.title);
+    }
+  }
+
+  function install(){
+    sync();
+    document.addEventListener('click',function(e){
+      var id=(e.target&&e.target.id)||'';
+      if(/^(arBtn|arabicToggle|tourArabicToggle|voiceBtn|voiceToggle|tourVoiceToggle|pauseBtn|pauseToggle|tourPauseToggle)$/.test(id)){
+        setTimeout(sync,80);
+        setTimeout(sync,250);
+      }
+    },true);
+    setInterval(sync,700);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',install,{once:true});
+  else install();
+})();
+</script>
+<script id="numero-icon-controls-v3">
+(function(){
+  'use strict';
+  var AR_IDS=['arBtn','arabicToggle','tourArabicToggle'];
+  var VOICE_IDS=['voiceBtn','voiceToggle','tourVoiceToggle'];
+  var PAUSE_IDS=['pauseBtn','pauseToggle','tourPauseToggle'];
+
+  function firstByIds(ids){
+    for(var i=0;i<ids.length;i++){
+      var el=document.getElementById(ids[i]);
+      if(el) return el;
+    }
+    return null;
+  }
+
+  function forceBaseStyle(btn){
+    if(!btn) return;
+    btn.style.setProperty('width','46px','important');
+    btn.style.setProperty('min-width','46px','important');
+    btn.style.setProperty('height','38px','important');
+    btn.style.setProperty('padding','0','important');
+    btn.style.setProperty('display','inline-flex','important');
+    btn.style.setProperty('align-items','center','important');
+    btn.style.setProperty('justify-content','center','important');
+    btn.style.setProperty('font-size','18px','important');
+    btn.style.setProperty('letter-spacing','0','important');
+    btn.style.setProperty('line-height','1','important');
+  }
+
+  var translateIcon =
+    '<span class="numero-translate-icon" aria-hidden="true" style="position:relative;width:25px;height:22px;display:inline-block;pointer-events:none">' +
+      '<span style="position:absolute;right:0;top:1px;width:16px;height:17px;border-radius:3px;background:#eef1f4;border:1px solid #bcc5ce;display:flex;align-items:center;justify-content:center;color:#4d5964;font:700 10px Arial;line-height:1">文</span>' +
+      '<span style="position:absolute;left:0;bottom:0;width:17px;height:17px;border-radius:3px;background:#4285f4;display:flex;align-items:center;justify-content:center;color:#fff;font:700 10px Arial;line-height:1;box-shadow:0 1px 2px rgba(0,0,0,.18)">G</span>' +
+    '</span>';
+
+  function decorateArabic(){
+    var b=firstByIds(AR_IDS); if(!b) return;
+    var raw=(b.textContent||'').trim().toUpperCase();
+    if(raw.indexOf('AR ON')>=0) b.dataset.numeroAr='on';
+    else if(raw.indexOf('AR OFF')>=0) b.dataset.numeroAr='off';
+    if(!b.dataset.numeroAr) b.dataset.numeroAr=(b.classList.contains('active')||b.classList.contains('on'))?'on':'off';
+    forceBaseStyle(b);
+    if(!b.querySelector('.numero-translate-icon')) b.innerHTML=translateIcon;
+    var on=b.dataset.numeroAr==='on';
+    b.title=on?'Arabic translation: ON':'Arabic translation: OFF';
+    b.setAttribute('aria-label',b.title);
+    b.style.setProperty('background',on?'#ffffff':'rgba(9,17,23,.76)','important');
+    b.style.setProperty('border-color',on?'#ffffff':'rgba(255,255,255,.18)','important');
+    b.style.setProperty('opacity',on?'1':'.62','important');
+  }
+
+  function decorateVoice(){
+    var b=firstByIds(VOICE_IDS); if(!b) return;
+    var raw=(b.textContent||'').trim().toUpperCase();
+    if(raw.indexOf('VOICE ON')>=0 || raw==='🔊') b.dataset.numeroMuted='0';
+    else if(raw.indexOf('VOICE OFF')>=0 || raw==='🔇') b.dataset.numeroMuted='1';
+    if(!b.dataset.numeroMuted) b.dataset.numeroMuted=(b.classList.contains('active')||b.classList.contains('on'))?'0':'1';
+    forceBaseStyle(b);
+    var muted=b.dataset.numeroMuted==='1';
+    var icon=muted?'🔇':'🔊';
+    if(b.textContent!==icon) b.textContent=icon;
+    b.title=muted?'Audio muted':'Audio on';
+    b.setAttribute('aria-label',b.title);
+    b.style.setProperty('background',muted?'#c62828':'rgba(9,17,23,.82)','important');
+    b.style.setProperty('border-color',muted?'#ff6b6b':'rgba(255,255,255,.18)','important');
+    b.style.setProperty('color','#ffffff','important');
+  }
+
+  function decoratePause(){
+    var b=firstByIds(PAUSE_IDS); if(!b) return;
+    var raw=(b.textContent||'').trim().toUpperCase();
+    if(raw.indexOf('REPLAY')>=0 || raw==='↻') b.dataset.numeroAction='replay';
+    else if(raw.indexOf('PLAY')>=0 || raw==='▶' || raw==='▶️') b.dataset.numeroAction='play';
+    else if(raw.indexOf('PAUSE')>=0 || raw==='⏸' || raw==='⏸️') b.dataset.numeroAction='pause';
+    if(!b.dataset.numeroAction) b.dataset.numeroAction='pause';
+    forceBaseStyle(b);
+    var action=b.dataset.numeroAction;
+    var icon=action==='play'?'▶':(action==='replay'?'↻':'⏸');
+    if(b.textContent!==icon) b.textContent=icon;
+    b.title=action==='play'?'Play':(action==='replay'?'Replay':'Pause');
+    b.setAttribute('aria-label',b.title);
+  }
+
+  var queued=false;
+  function decorateAll(){ queued=false; decorateArabic(); decorateVoice(); decoratePause(); }
+  function queueDecorate(){ if(queued) return; queued=true; Promise.resolve().then(decorateAll); }
+
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',decorateAll,{once:true});
+  else decorateAll();
+
+  var obs=new MutationObserver(function(mutations){
+    for(var i=0;i<mutations.length;i++){
+      var t=mutations[i].target;
+      if(t && t.nodeType===3) t=t.parentElement;
+      if(!t) continue;
+      var btn=(t.tagName==='BUTTON')?t:(t.closest?t.closest('button'):null);
+      var id=btn?btn.id:'';
+      if(AR_IDS.indexOf(id)>=0 || VOICE_IDS.indexOf(id)>=0 || PAUSE_IDS.indexOf(id)>=0){ queueDecorate(); return; }
+    }
+  });
+  if(document.body) obs.observe(document.body,{subtree:true,childList:true,characterData:true});
+})();
+</script>
+
+<script id="final-pause-toggle-4-pages">
+(function(){
+  'use strict';
+
+  function control(){ return document.getElementById('presentationControl'); }
+  function icon(){ return document.getElementById('presentationControlIcon'); }
+  function text(){ return document.getElementById('presentationControlText'); }
+
+  function setIconFromPausedState(){
+    var c=control(), i=icon(), t=text();
+    if(!c) return;
+
+    if(t) t.style.display='none';
+
+    var paused=document.body.classList.contains('presentation-paused');
+    var symbol=paused ? '▶' : '⏸';
+
+    if(i) i.textContent=symbol;
+    else c.textContent=symbol;
+
+    c.setAttribute('aria-label', paused ? 'Play presentation' : 'Pause presentation');
+    c.title=paused ? 'Play' : 'Pause';
+  }
+
+  function install(){
+    var c=control();
+    if(!c || c.getAttribute('data-final-pause-sync')==='1') return;
+
+    c.setAttribute('data-final-pause-sync','1');
+    setIconFromPausedState();
+
+    c.addEventListener('click',function(){
+      setTimeout(setIconFromPausedState,0);
+      setTimeout(setIconFromPausedState,40);
+    },false);
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',install,{once:true});
+  }else{
+    install();
+  }
+
+  setTimeout(install,100);
+  setTimeout(install,500);
+})();
+</script>
+
+</body>
+</html>

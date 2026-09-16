@@ -280,7 +280,26 @@
     }, 35);
   }
 
-  synth.cancel = function(){ stopAudio(); try { original.cancel(); } catch(e) {} };
+  synth.cancel = function(){
+    /* Viewer build: when the user presses the SOUND toggle OFF, do not cancel
+       the active fixed MP3.  Cancelling destroys the utterance completion
+       callback that many pages use to advance, which makes "sound off" look
+       like PAUSE.  Muting lets the same audio finish silently and fire onend. */
+    var viewerMuteClick = false;
+    try {
+      viewerMuteClick = !!window.NUMERO_VIEWER_MODE &&
+        !!window.__numeroViewerVoiceToggleClick &&
+        localStorage.getItem('support_center_voice') === '0';
+    } catch(e) {}
+
+    if (viewerMuteClick && activeAudio) {
+      try { activeAudio.muted = true; } catch(e) {}
+      return;
+    }
+
+    stopAudio();
+    try { original.cancel(); } catch(e) {}
+  };
   synth.pause = function(){
     paused = true;
     if (activeAudio) { try { activeAudio.pause(); } catch(e) {} }
